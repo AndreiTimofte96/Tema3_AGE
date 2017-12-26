@@ -6,9 +6,10 @@
 #include <fstream>
 #include <ctime>
 #define DMAX 100
-#define STOP 50
+#define STOP 1
 #define noOfCromosomes 100
 #define MIN_VAL 9999999
+#define firstVertex 1
 
 using namespace std;
 
@@ -18,9 +19,6 @@ int Cost[DMAX][DMAX], Pop[DMAX][DMAX];
 int noOfVertices, noOfEdges;
 int localMin, globalMin = MIN_VAL;
 
-int FitnessFunction() {
-	return 1;
-}
 
 void ReadData(){
 
@@ -35,15 +33,17 @@ void ReadData(){
 void InitialPopulation(){
 
 	bool use[DMAX];
-	int random;
+	int random, vertex;
 
 	for (int index = 0; index < noOfCromosomes; index++) {
 
-		for (int vertex = 1; vertex <= noOfVertices; vertex++) {
+		for (int vertex = 2; vertex <= noOfVertices; vertex++) {
 			use[vertex] = false;
 		}
 
-		for (int vertex = 0; vertex < noOfVertices; vertex++) {
+		Pop[index][0] = firstVertex;
+		//cout << firstVertex<< " ";
+		for (vertex = 1; vertex < noOfVertices; vertex++) {
 
 			do{
 				random = rand() % noOfVertices + 1;
@@ -51,12 +51,26 @@ void InitialPopulation(){
 			while (use[random] == true);
 			use[random] = true;
 			Pop[index][vertex] = random;
+			//cout << random << " ";
 		}
+		Pop[index][vertex] = firstVertex;
+		//cout << firstVertex<< " ";
+		//cout << '\n';
 	}
 }
 
 
+int FitnessFunction(int vector[]) {
+
+	int cost = 0;	
+	for (int index = 0; index < noOfVertices; index++) {
+		cost += Cost[vector[index]][vector[index + 1]];
+	}
+	return cost;
+}
+
 void RouletteWheel() {
+	
 
 }
 
@@ -67,6 +81,7 @@ void Mutation() {
 void Cross() {
 
 }
+
 void GeneticAlgorithm() {
 
 	int counter = 0;
