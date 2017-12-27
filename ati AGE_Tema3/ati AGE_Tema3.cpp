@@ -6,7 +6,7 @@
 #include <fstream>
 #include <ctime>
 #define DMAX 100
-#define STOP 1
+#define STOP 100
 #define noOfCromosomes 100
 #define noOfSelectedCrom noOfCromosomes/4
 #define MIN_VAL 9999999
@@ -24,7 +24,7 @@ struct {
 int Cost[DMAX][DMAX];
 
 int noOfVertices, noOfEdges;
-int localMin, globalMin = MIN_VAL;
+int localMin = MIN_VAL, globalMin = MIN_VAL;
 int vector[DMAX];
 
 
@@ -183,7 +183,7 @@ void Cross(){
 		for (int index1 = 0; index1 < noOfVertices + 1; index1++) {
 			newA[index1] = vector[index1];
 		}
-
+		
 		/*for (int index1 = 0; index1 < noOfVertices + 1; index1++) {
 			cout << Pop.M[index][index1] << " ";
 		}
@@ -199,8 +199,22 @@ void Cross(){
 		for (int index1 = 0; index1 < noOfVertices + 1; index1++) {
 			cout << newB[index1] << " ";
 		}*/
+
+
+		for (int index1 = 0; index1 < noOfVertices + 1; index1++) {
+			Pop.M[index][index1] = newA[index1];
+			Pop.M[index + 1][index1] = newB[index1];
+		}
+		/*cout << '\n';
+		for (int index1 = 0; index1 < noOfVertices + 1; index1++) {
+			cout << Pop.M[index][index1] << " ";
+		}
 		cout << '\n';
-		cout << startPoint << " " << lengthOfSeq << '\n';
+		for (int index1 = 0; index1 < noOfVertices + 1; index1++) {
+			cout << Pop.M[index+1][index1] << " ";
+		}
+		cout << '\n';
+		cout << startPoint << " " << lengthOfSeq << '\n';*/
 	}
 }
 
@@ -217,11 +231,12 @@ void GeneticAlgorithm() {
 		RankSelection();
 		Mutation();
 		Cross();
-		//localMin = EvaluateOffSprings(functionName);
+		localMin = Pop.CromCost[0];
 		if (localMin < globalMin) {
 			counter = 0;
 			globalMin = localMin;
 		}
+		
 		counter++;
 	}
 	cout << "Best Cost: " << globalMin << '\n';
