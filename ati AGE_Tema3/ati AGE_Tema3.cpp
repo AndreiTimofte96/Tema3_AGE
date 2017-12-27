@@ -8,6 +8,7 @@
 #define DMAX 100
 #define STOP 1
 #define noOfCromosomes 100
+#define noOfSelectedCrom noOfCromosomes/4
 #define MIN_VAL 9999999
 #define firstVertex 1
 
@@ -15,9 +16,16 @@ using namespace std;
 
 ifstream fin("data.in");
 
-int Cost[DMAX][DMAX], Pop[DMAX][DMAX];
+struct {
+	int M[DMAX][DMAX];
+	int CromCost[DMAX];
+}Pop;
+
+int Cost[DMAX][DMAX];
+
 int noOfVertices, noOfEdges;
 int localMin, globalMin = MIN_VAL;
+int vector[DMAX];
 
 
 void ReadData(){
@@ -35,13 +43,17 @@ void InitialPopulation(){
 	bool use[DMAX];
 	int random, vertex;
 
+	
 	for (int index = 0; index < noOfCromosomes; index++) {
 
-		for (int vertex = 2; vertex <= noOfVertices; vertex++) {
-			use[vertex] = false;
+		use[firstVertex] = true;
+		for (int vertex = 1; vertex <= noOfVertices; vertex++) {
+			if (vertex != firstVertex) {
+				use[vertex] = false;
+			}
 		}
 
-		Pop[index][0] = firstVertex;
+		Pop.M[index][0] = firstVertex;
 		//cout << firstVertex<< " ";
 		for (vertex = 1; vertex < noOfVertices; vertex++) {
 
@@ -50,17 +62,17 @@ void InitialPopulation(){
 			}
 			while (use[random] == true);
 			use[random] = true;
-			Pop[index][vertex] = random;
+			Pop.M[index][vertex] = random;
 			//cout << random << " ";
 		}
-		Pop[index][vertex] = firstVertex;
+		Pop.M[index][vertex] = firstVertex;
 		//cout << firstVertex<< " ";
 		//cout << '\n';
 	}
 }
 
 
-int FitnessFunction(int vector[]) {
+int RoadCost(int vector[]) {
 
 	int cost = 0;	
 	for (int index = 0; index < noOfVertices; index++) {
@@ -69,16 +81,131 @@ int FitnessFunction(int vector[]) {
 	return cost;
 }
 
-void RouletteWheel() {
+void SortPopulation() {
 	
-
+	bool ok = true;
+	int aux;
+	while (ok) {
+		ok = false;
+		for (int index = 0; index < noOfCromosomes - 1; index++) {
+			if (Pop.CromCost[index] > Pop.CromCost[index + 1]) {
+				aux = Pop.CromCost[index];
+				Pop.CromCost[index] = Pop.CromCost[index+1];
+				Pop.CromCost[index + 1] = aux;
+				for (int vertex = 0; vertex < noOfVertices + 1; vertex++) {
+					aux = Pop.M[index][vertex];
+					Pop.M[index][vertex] = Pop.M[index+1][vertex];
+					Pop.M[index + 1][vertex] = aux;
+				}
+				ok = true;
+			}
+		}
+	}
 }
+
+void RankSelection(){
+
+	for (int index = 0; index < noOfCromosomes; index++) {
+		Pop.CromCost[index] = RoadCost(Pop.M[index]);
+	}
+	
+	/*for (int i = 0; i < noOfCromosomes; i++) {
+		for (int j = 0; j < noOfVertices + 1; j++) {
+			cout << Pop.M[i][j] << " ";
+		}
+		cout <<"Cost " << Pop.CromCost[i] << '\n';
+	}*/
+	SortPopulation();
+}
+
+void InterChange(int a[], int b[], int startPoint, int lengthOfSeq) {
+
+	int aux[DMAX];
+	int  k = 0;
+	bool found;
+
+	for (int index = startPoint; index < startPoint + lengthOfSeq; index++) {
+		aux[k++] = a[index];
+	}
+
+	int fin = startPoint;
+	k = 0;
+	for (int index = 0; index < fin; index++) {
+		found = false;
+		for (int seq = 0; seq < lengthOfSeq; seq++) {
+			if (b[index] == aux[seq]) {
+				found = true;
+			}
+		}
+		if (found == false) {
+			vector[k++] = b[index];
+		}
+		else {
+			fin++;
+		}
+	}
+
+	k = 0;
+	for (int index = startPoint; index < startPoint + lengthOfSeq; index++) {
+		vector[index] = aux[k++];
+	}
+
+	k = startPoint + lengthOfSeq;
+	for (int index = startPoint + 1; index < noOfVertices + 1; index++) {
+		found = false;
+		for (int seq = 0; seq < lengthOfSeq; seq++) {
+			if (b[index] == aux[seq]) {
+				found = true;
+			}
+		}
+		if (found == false) {
+			vector[k++] = b[index];
+		}
+	}
+}
+
+
+void Cross(){
+
+	int selectCrom = noOfCromosomes - noOfSelectedCrom - 1;
+	int lengthOfSeq = noOfVertices / 2;
+	int startPoint = rand() % (noOfVertices - lengthOfSeq+1);
+	int newB[DMAX], newA[DMAX];
+	if (selectCrom % 2 == 1) selectCrom++;
+
+	for (int index = selectCrom; index < noOfCromosomes; index += 2) {
+		
+		InterChange(Pop.M[index], Pop.M[index + 1], startPoint, lengthOfSeq);
+		for (int index1 = 0; index1 < noOfVertices + 1; index1++) {
+			newB[index1] = vector[index1];
+		}
+		InterChange(Pop.M[index + 1], Pop.M[index], startPoint, lengthOfSeq);
+		for (int index1 = 0; index1 < noOfVertices + 1; index1++) {
+			newA[index1] = vector[index1];
+		}
+
+		/*for (int index1 = 0; index1 < noOfVertices + 1; index1++) {
+			cout << Pop.M[index][index1] << " ";
+		}
+		cout << "=> ";
+		for (int index1 = 0; index1 < noOfVertices + 1; index1++) {
+			cout << newA[index1] << " ";
+		}
+		cout << '\n';
+		for (int index1 = 0; index1 < noOfVertices + 1; index1++) {
+			cout << Pop.M[index+1][index1] << " ";
+		}
+		cout << "=> ";
+		for (int index1 = 0; index1 < noOfVertices + 1; index1++) {
+			cout << newB[index1] << " ";
+		}*/
+		cout << '\n';
+		cout << startPoint << " " << lengthOfSeq << '\n';
+	}
+}
+
 
 void Mutation() {
-
-}
-
-void Cross() {
 
 }
 
@@ -87,7 +214,7 @@ void GeneticAlgorithm() {
 	int counter = 0;
 	InitialPopulation();
 	while (counter < STOP) {
-		RouletteWheel();
+		RankSelection();
 		Mutation();
 		Cross();
 		//localMin = EvaluateOffSprings(functionName);
@@ -101,11 +228,34 @@ void GeneticAlgorithm() {
 }
 
 
+
 int main(){
 
 	srand((unsigned int)time(NULL));
 	ReadData();
 	GeneticAlgorithm();
+
+	/*int a[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+	int b[] = { 7, 3, 1, 11, 4, 12, 5, 2, 10, 9, 6, 8 };
+	int newA[DMAX], newB[DMAX];
+	
+	InterChange(a, b, 3, 4);
+	for (int index = 0; index < 12; index++) {
+		newA[index] = vector[index];
+	}
+	
+	InterChange(b, a, 3, 4);
+	for (int index = 0; index < 12; index++) {
+		newB[index] = vector[index];
+	}
+
+	for (int index = 0; index < 12; index++) {
+		cout << newA[index] << " ";
+	}
+	cout << '\n';
+	for (int index = 0; index < 12; index++) {
+		cout << newB[index] << " ";
+	}*/
     return 0;
 }
 
