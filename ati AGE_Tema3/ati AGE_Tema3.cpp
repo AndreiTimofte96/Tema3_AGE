@@ -10,6 +10,7 @@
 #define noOfCromosomes 100
 #define noOfSelectedCrom noOfCromosomes/4
 #define MIN_VAL 9999999
+#define PROB_MUT 0.01
 #define firstVertex 1
 
 using namespace std;
@@ -183,8 +184,30 @@ void Cross(){
 	}
 }
 
+double RandomValue(double lowValue, double highValue) {
+	return lowValue + static_cast <double> (rand()) / (static_cast <double> (RAND_MAX / (highValue - lowValue)));
+}
 
 void Mutation() {
+	
+	int random1, random2, aux;
+	double prob;
+	for (int cromosome = 0; cromosome < noOfCromosomes; cromosome++) {
+
+		prob = RandomValue(0, 1);
+		if (prob < PROB_MUT) {
+
+			do {
+				random1 = rand() % (noOfVertices - 1) + 1;
+				random2 = rand() % (noOfVertices - 1) + 1;
+			} while (random1 == random2);
+
+			aux = Pop.M[cromosome][random1];
+			Pop.M[cromosome][random1] = Pop.M[cromosome][random2];
+			Pop.M[cromosome][random2] = aux;
+		}
+		
+	}
 
 }
 
