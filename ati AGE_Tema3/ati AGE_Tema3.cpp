@@ -53,7 +53,6 @@ void InitialPopulation(){
 		}
 
 		Pop.M[index][0] = firstVertex;
-		cout << firstVertex << " ";
 		for (vertex = 1; vertex < noOfVertices; vertex++) {
 
 			do{
@@ -62,11 +61,8 @@ void InitialPopulation(){
 			while (use[random] == true);
 			use[random] = true;
 			Pop.M[index][vertex] = random;
-			cout << random << " ";
 		}
 		Pop.M[index][vertex] = firstVertex;
-		cout << firstVertex<< " ";
-		cout << '\n';
 	}
 }
 
@@ -103,19 +99,11 @@ void SortPopulation() {
 }
 
 void RankSelection(){
-	cout << "Costuri Crom:\n";
+
 	for (int index = 0; index < noOfCromosomes; index++) {
 		Pop.CromCost[index] = RoadCost(Pop.M[index]);
-		cout << Pop.CromCost[index] << " ";
 	}
-	cout << '\n';
-	
-	/*for (int i = 0; i < noOfCromosomes; i++) {
-		for (int j = 0; j < noOfVertices + 1; j++) {
-			cout << Pop.M[i][j] << " ";
-		}
-		cout <<"Cost " << Pop.CromCost[i] << '\n';
-	}*/
+
 	SortPopulation();
 }
 
@@ -187,37 +175,11 @@ void Cross(){
 			newA[index1] = vector[index1];
 		}
 		
-		/*for (int index1 = 0; index1 < noOfVertices + 1; index1++) {
-			cout << Pop.M[index][index1] << " ";
-		}
-		cout << "=> ";
-		for (int index1 = 0; index1 < noOfVertices + 1; index1++) {
-			cout << newA[index1] << " ";
-		}
-		cout << '\n';
-		for (int index1 = 0; index1 < noOfVertices + 1; index1++) {
-			cout << Pop.M[index+1][index1] << " ";
-		}
-		cout << "=> ";
-		for (int index1 = 0; index1 < noOfVertices + 1; index1++) {
-			cout << newB[index1] << " ";
-		}*/
-
 
 		for (int index1 = 0; index1 < noOfVertices + 1; index1++) {
 			Pop.M[index][index1] = newA[index1];
 			Pop.M[index + 1][index1] = newB[index1];
 		}
-		/*cout << '\n';
-		for (int index1 = 0; index1 < noOfVertices + 1; index1++) {
-			cout << Pop.M[index][index1] << " ";
-		}
-		cout << '\n';
-		for (int index1 = 0; index1 < noOfVertices + 1; index1++) {
-			cout << Pop.M[index+1][index1] << " ";
-		}
-		cout << '\n';
-		cout << startPoint << " " << lengthOfSeq << '\n';*/
 	}
 }
 
@@ -247,40 +209,11 @@ void GeneticAlgorithm() {
 	}
 }
 
-
-
 int main(){
 
 	srand((unsigned int)time(NULL));
 	ReadData();
 	GeneticAlgorithm();
-
-	/*int a[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
-	int b[] = { 7, 3, 1, 11, 4, 12, 5, 2, 10, 9, 6, 8 }; 
-
-	cout<<'\n';
-	int a[] = { 1, 5, 2, 4, 6, 3, 1 };
-	int b[] = { 1, 3, 6, 2, 5, 4, 1 };
-	int length = 7;
-	int newA[DMAX], newB[DMAX];
-	
-	InterChange(a, b, 3, 3);
-	for (int index = 0; index < length; index++) {
-		newA[index] = vector[index];
-	}
-	
-	InterChange(b, a, 3, 3);
-	for (int index = 0; index < length; index++) {
-		newB[index] = vector[index];
-	}
-
-	for (int index = 0; index < length; index++) {
-		cout << newA[index] << " ";
-	}
-	cout << '\n';
-	for (int index = 0; index < length; index++) {
-		cout << newB[index] << " ";
-	}*/
     return 0;
 }
 
