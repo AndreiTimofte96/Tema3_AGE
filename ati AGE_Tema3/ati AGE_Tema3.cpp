@@ -5,7 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <ctime>
-#define DMAX 100
+#define DMAX 1001
 #define STOP 100
 #define noOfCromosomes 100
 #define noOfSelectedCrom noOfCromosomes/4
@@ -27,7 +27,6 @@ int noOfVertices, noOfEdges;
 int localMin = MIN_VAL, globalMin = MIN_VAL;
 int vector[DMAX];
 
-
 void ReadData(){
 
 	int x, y;
@@ -35,6 +34,7 @@ void ReadData(){
 	for (int index = 0; index < noOfEdges; index++) {
 		fin >> x >> y;
 		fin >> Cost[x][y];
+		Cost[y][x] = Cost[x][y];
 	}
 }
 
@@ -43,18 +43,17 @@ void InitialPopulation(){
 	bool use[DMAX];
 	int random, vertex;
 
-	
+	use[firstVertex] = true;
 	for (int index = 0; index < noOfCromosomes; index++) {
 
-		use[firstVertex] = true;
-		for (int vertex = 1; vertex <= noOfVertices; vertex++) {
-			if (vertex != firstVertex) {
-				use[vertex] = false;
+		for (int index1 = 1; index1 <= noOfVertices; index1++) {
+			if (index1 != firstVertex) {
+				use[index1] = false;
 			}
 		}
 
 		Pop.M[index][0] = firstVertex;
-		//cout << firstVertex<< " ";
+		cout << firstVertex << " ";
 		for (vertex = 1; vertex < noOfVertices; vertex++) {
 
 			do{
@@ -63,11 +62,11 @@ void InitialPopulation(){
 			while (use[random] == true);
 			use[random] = true;
 			Pop.M[index][vertex] = random;
-			//cout << random << " ";
+			cout << random << " ";
 		}
 		Pop.M[index][vertex] = firstVertex;
-		//cout << firstVertex<< " ";
-		//cout << '\n';
+		cout << firstVertex<< " ";
+		cout << '\n';
 	}
 }
 
@@ -104,10 +103,12 @@ void SortPopulation() {
 }
 
 void RankSelection(){
-
+	cout << "Costuri Crom:\n";
 	for (int index = 0; index < noOfCromosomes; index++) {
 		Pop.CromCost[index] = RoadCost(Pop.M[index]);
+		cout << Pop.CromCost[index] << " ";
 	}
+	cout << '\n';
 	
 	/*for (int i = 0; i < noOfCromosomes; i++) {
 		for (int j = 0; j < noOfVertices + 1; j++) {
@@ -130,7 +131,7 @@ void InterChange(int a[], int b[], int startPoint, int lengthOfSeq) {
 
 	int fin = startPoint;
 	k = 0;
-	for (int index = 0; index < fin; index++) {
+	for (int index = 0; index < fin && index < startPoint+lengthOfSeq; index++) {
 		found = false;
 		for (int seq = 0; seq < lengthOfSeq; seq++) {
 			if (b[index] == aux[seq]) {
@@ -151,7 +152,7 @@ void InterChange(int a[], int b[], int startPoint, int lengthOfSeq) {
 	}
 
 	k = startPoint + lengthOfSeq;
-	for (int index = startPoint + 1; index < noOfVertices + 1; index++) {
+	for (int index = startPoint; index < noOfVertices; index++) {
 		found = false;
 		for (int seq = 0; seq < lengthOfSeq; seq++) {
 			if (b[index] == aux[seq]) {
@@ -160,16 +161,16 @@ void InterChange(int a[], int b[], int startPoint, int lengthOfSeq) {
 		}
 		if (found == false) {
 			vector[k++] = b[index];
-		}
+		}	
 	}
+	vector[noOfVertices] = firstVertex;
 }
-
 
 void Cross(){
 
 	int selectCrom = noOfCromosomes - noOfSelectedCrom - 1;
 	int lengthOfSeq = noOfVertices / 2;
-	int startPoint = rand() % (noOfVertices - lengthOfSeq+1);
+	int startPoint = rand() % (noOfVertices - lengthOfSeq) + 1;
 	int newB[DMAX], newA[DMAX];
 	if (selectCrom % 2 == 1) selectCrom++;
 
@@ -229,17 +230,19 @@ void GeneticAlgorithm() {
 	InitialPopulation();
 	while (counter < STOP) {
 		RankSelection();
-		Mutation();
 		Cross();
+		Mutation();
 		localMin = Pop.CromCost[0];
 		if (localMin < globalMin) {
 			counter = 0;
 			globalMin = localMin;
 		}
-		
 		counter++;
 	}
 	cout << "Best Cost: " << globalMin << '\n';
+	for (int index = 0; index < noOfVertices + 1; index++) {
+		cout << Pop.M[0][index] << " ";
+	}
 }
 
 
@@ -251,26 +254,31 @@ int main(){
 	GeneticAlgorithm();
 
 	/*int a[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
-	int b[] = { 7, 3, 1, 11, 4, 12, 5, 2, 10, 9, 6, 8 };
+	int b[] = { 7, 3, 1, 11, 4, 12, 5, 2, 10, 9, 6, 8 }; */
+
+	cout<<'\n';
+	int a[] = { 1, 5, 2, 4, 6, 3, 1 };
+	int b[] = { 1, 3, 6, 2, 5, 4, 1 };
+	int length = 7;
 	int newA[DMAX], newB[DMAX];
 	
-	InterChange(a, b, 3, 4);
-	for (int index = 0; index < 12; index++) {
+	InterChange(a, b, 3, 3);
+	for (int index = 0; index < length; index++) {
 		newA[index] = vector[index];
 	}
 	
-	InterChange(b, a, 3, 4);
-	for (int index = 0; index < 12; index++) {
+	InterChange(b, a, 3, 3);
+	for (int index = 0; index < length; index++) {
 		newB[index] = vector[index];
 	}
 
-	for (int index = 0; index < 12; index++) {
+	for (int index = 0; index < length; index++) {
 		cout << newA[index] << " ";
 	}
 	cout << '\n';
-	for (int index = 0; index < 12; index++) {
+	for (int index = 0; index < length; index++) {
 		cout << newB[index] << " ";
-	}*/
+	}
     return 0;
 }
 
