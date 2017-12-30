@@ -122,48 +122,50 @@ void RankSelection(){
 void InterChange(int a[], int b[], int startPoint, int lengthOfSeq) {
 
 	int aux[DMAX];
-	int  k = 0;
-	bool found;
+	vector[0] = vector[noOfVertices] = firstVertex;
 
+	int k = 0;
 	for (int index = startPoint; index < startPoint + lengthOfSeq; index++) {
 		aux[k++] = a[index];
 	}
 
-	int fin = startPoint;
-	k = 0;
-	for (int index = 0; index < fin && index < startPoint+lengthOfSeq; index++) {
+	bool found;
+	int final = startPoint;
+	k = 1;
+	for (int vertex = 1; vertex < final && vertex < startPoint + lengthOfSeq ; vertex++) {
 		found = false;
-		for (int seq = 0; seq < lengthOfSeq; seq++) {
-			if (b[index] == aux[seq]) {
+		for (int index = 0; index < lengthOfSeq; index++) {
+			if (b[vertex] == aux[index]) {
 				found = true;
+				break;
 			}
 		}
+
 		if (found == false) {
-			vector[k++] = b[index];
+			vector[k++] = b[vertex];
 		}
 		else {
-			fin++;
+			final++;
 		}
 	}
-
 	k = 0;
-	for (int index = startPoint; index < startPoint + lengthOfSeq; index++) {
-		vector[index] = aux[k++];
+	for (int vertex = startPoint; vertex < startPoint + lengthOfSeq; vertex++) {
+		vector[vertex] = aux[k++];
 	}
 
 	k = startPoint + lengthOfSeq;
-	for (int index = startPoint; index < noOfVertices; index++) {
+	for (int vertex = final; vertex < noOfVertices; vertex++) {
 		found = false;
-		for (int seq = 0; seq < lengthOfSeq; seq++) {
-			if (b[index] == aux[seq]) {
+		for (int index = 0; index < lengthOfSeq; index++) {
+			if (b[vertex] == aux[index]) {
 				found = true;
+				break;
 			}
 		}
 		if (found == false) {
-			vector[k++] = b[index];
-		}	
+			vector[k++] = b[vertex];
+		}
 	}
-	vector[noOfVertices] = firstVertex;
 }
 
 void Cross(){
@@ -254,7 +256,7 @@ int main(){
 	GeneticAlgorithm();
 
 	/*int a[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
-	int b[] = { 7, 3, 1, 11, 4, 12, 5, 2, 10, 9, 6, 8 }; */
+	int b[] = { 7, 3, 1, 11, 4, 12, 5, 2, 10, 9, 6, 8 }; 
 
 	cout<<'\n';
 	int a[] = { 1, 5, 2, 4, 6, 3, 1 };
@@ -278,7 +280,7 @@ int main(){
 	cout << '\n';
 	for (int index = 0; index < length; index++) {
 		cout << newB[index] << " ";
-	}
+	}*/
     return 0;
 }
 
