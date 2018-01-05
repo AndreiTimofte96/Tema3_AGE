@@ -9,23 +9,24 @@
 #define STOP 100
 #define noOfCromosomes 100
 #define noOfSelectedCrom noOfCromosomes/4
-#define MIN_VAL 9999999
-#define PROB_MUT 0.01
-#define firstVertex 1
+#define MIN_VAL 9999999.0
+#define PROB_MUT 0.1
 
 using namespace std;
 
-ifstream fin("data.in");
+ifstream fin("sahara.txt");
+
+int firstVertex;
 
 struct {
 	int M[DMAX][DMAX];
-	int CromCost[DMAX];
+	double CromCost[DMAX];
 }Pop;
 
-int Cost[DMAX][DMAX];
+double Cost[DMAX][DMAX];
 
 int noOfVertices, noOfEdges;
-int localMin = MIN_VAL, globalMin = MIN_VAL;
+double localMin = MIN_VAL, globalMin = MIN_VAL;
 int vector[DMAX];
 
 void ReadData(){
@@ -68,9 +69,9 @@ void InitialPopulation(){
 }
 
 
-int RoadCost(int vector[]) {
+double RoadCost(int vector[]) {
 
-	int cost = 0;	
+	double cost = 0;	
 	for (int index = 0; index < noOfVertices; index++) {
 		cost += Cost[vector[index]][vector[index + 1]];
 	}
@@ -80,7 +81,8 @@ int RoadCost(int vector[]) {
 void SortPopulation() {
 	
 	bool ok = true;
-	int aux;
+	double aux;
+	int aux1;
 	while (ok) {
 		ok = false;
 		for (int index = 0; index < noOfCromosomes - 1; index++) {
@@ -89,9 +91,9 @@ void SortPopulation() {
 				Pop.CromCost[index] = Pop.CromCost[index+1];
 				Pop.CromCost[index + 1] = aux;
 				for (int vertex = 0; vertex < noOfVertices + 1; vertex++) {
-					aux = Pop.M[index][vertex];
+					aux1 = Pop.M[index][vertex];
 					Pop.M[index][vertex] = Pop.M[index+1][vertex];
-					Pop.M[index + 1][vertex] = aux;
+					Pop.M[index + 1][vertex] = aux1;
 				}
 				ok = true;
 			}
@@ -223,6 +225,7 @@ void GeneticAlgorithm() {
 		if (localMin < globalMin) {
 			counter = 0;
 			globalMin = localMin;
+			cout << localMin << '\n';
 		}
 		counter++;
 	}
@@ -230,13 +233,27 @@ void GeneticAlgorithm() {
 	for (int index = 0; index < noOfVertices + 1; index++) {
 		cout << Pop.M[0][index] << " ";
 	}
+	cout << '\n';
 }
 
 int main(){
 
+	double allMin = MIN_VAL;
 	srand((unsigned int)time(NULL));
 	ReadData();
-	GeneticAlgorithm();
+	for (firstVertex = 1; firstVertex <= 38; firstVertex++) {
+		globalMin = MIN_VAL;
+		
+		cout << "Start Vertex: " << firstVertex << '\n';
+		GeneticAlgorithm();
+		if (globalMin < allMin) allMin = globalMin;
+	}
+
+	cout << "Best MIn Cost: " << allMin<<'\n';
+
+
     return 0;
 }
+
+
 
