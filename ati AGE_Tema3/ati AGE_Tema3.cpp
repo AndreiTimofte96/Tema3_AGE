@@ -14,7 +14,7 @@
 
 using namespace std;
 
-ifstream fin("sahara.txt");
+ifstream fin("djibouti.txt");
 
 int firstVertex;
 
@@ -219,8 +219,8 @@ void GeneticAlgorithm() {
 	InitialPopulation();
 	while (counter < STOP) {
 		RankSelection();
-		Cross();
 		Mutation();
+		Cross();
 		localMin = Pop.CromCost[0];
 		if (localMin < globalMin) {
 			counter = 0;
@@ -241,7 +241,7 @@ int main(){
 	double allMin = MIN_VAL;
 	srand((unsigned int)time(NULL));
 	ReadData();
-	for (firstVertex = 1; firstVertex <= 38; firstVertex++) {
+	/*for (firstVertex = 1; firstVertex <= 38; firstVertex++) {
 		globalMin = MIN_VAL;
 		
 		cout << "Start Vertex: " << firstVertex << '\n';
@@ -249,9 +249,13 @@ int main(){
 		if (globalMin < allMin) allMin = globalMin;
 	}
 
-	cout << "Best MIn Cost: " << allMin<<'\n';
+	cout << "Best MIn Cost: " << allMin<<'\n';*/
+	firstVertex = 1;
+	//GeneticAlgorithm();
 
-
+	int x[] = { 1, 6, 35, 4, 13, 3, 30, 2, 5, 21, 25, 10, 28, 38, 8, 18, 19, 16, 12, 26, 27, 17, 7, 34, 14, 23, 37, 22, 15, 11, 33, 36, 32, 24, 9, 20, 31, 29, 1 };
+	cout << RoadCost(x) << '\n';
+	cout<<Cost[17][1]<<'\n';
     return 0;
 }
 
