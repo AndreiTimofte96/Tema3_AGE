@@ -1,33 +1,35 @@
 // ati AGE_Tema3.cpp : Defines the entry point for the console application.
 //
-
 #include "stdafx.h"
 #include <iostream>
 #include <fstream>
 #include <ctime>
 #define DMAX 1001
 #define STOP 100
-#define noOfCromosomes 100
-#define noOfSelectedCrom noOfCromosomes/4
+#define noOfCromosomes 1000
 #define MIN_VAL 9999999.0
-#define PROB_MUT 0.1
+#define MAX_VAL 0.0
+#define PROB_MUT 0.01
+#define PROB_CROSS 0.2
 
 using namespace std;
 
-ifstream fin("djibouti.txt");
+ifstream fin("sahara.txt");
 
 int firstVertex;
 
 struct {
 	int M[DMAX][DMAX];
+	int newM[DMAX][DMAX];
 	double CromCost[DMAX];
 }Pop;
 
 double Cost[DMAX][DMAX];
 
 int noOfVertices, noOfEdges;
-double localMin = MIN_VAL, globalMin = MIN_VAL;
-int vector[DMAX];
+double bestChromosome = MAX_VAL, bestResult = MIN_VAL;
+int posOfBest;
+int vector[DMAX], optimTour[DMAX];
 
 void ReadData(){
 
@@ -68,7 +70,6 @@ void InitialPopulation(){
 	}
 }
 
-
 double RoadCost(int vector[]) {
 
 	double cost = 0;	
@@ -99,6 +100,79 @@ void SortPopulation() {
 			}
 		}
 	}
+}
+
+double FitnessFunction(double value) {
+
+	return 1 / value;
+}
+
+void CopyFromMatrix(int survivors[]) {
+
+	for (int index = 0; index < noOfCromosomes; index++) {
+		for (int vertex = 0; vertex < noOfVertices + 1; vertex++) {
+			Pop.newM[index][vertex] = Pop.M[survivors[index]][vertex];
+		}
+	}
+}
+
+void CopyToMatrix() {
+
+	for (int index = 0; index < noOfCromosomes; index++) {
+		for (int vertex = 0; vertex < noOfVertices + 1; vertex++) {
+			Pop.M[index][vertex] = Pop.newM[index][vertex];
+		}
+	}
+}
+
+double RandomValue(double lowValue, double highValue) {
+	return lowValue + static_cast <double> (rand()) / (static_cast <double> (RAND_MAX / (highValue - lowValue)));
+}
+
+void RouletteSelection() {
+
+	double result, cromosomeSum = 0, random;
+	double prob[noOfCromosomes + 1];
+	double qprob[noOfCromosomes + 1];
+
+	int survivorsChrom[noOfCromosomes];
+
+	for (int index = 0; index < noOfCromosomes; index++) {
+
+		result = RoadCost(Pop.M[index]);
+		if (result < bestResult) {
+			bestResult = result;
+			posOfBest = index;
+			cout << bestResult << '\n';
+		}
+		Pop.CromCost[index] = FitnessFunction(result);
+	}
+
+	for (int index = 0; index < noOfCromosomes; index++) {
+		cromosomeSum += Pop.CromCost[index];
+		if (Pop.CromCost[index] > bestChromosome) {
+			bestChromosome = Pop.CromCost[index];
+		}
+	}
+
+	for (int index1 = 0; index1 < noOfCromosomes; index1++) {
+		prob[index1] = Pop.CromCost[index1] / cromosomeSum;
+	}
+
+	qprob[0] = 0;
+	for (int index1 = 0; index1 < noOfCromosomes; index1++) {
+		qprob[index1 + 1] = qprob[index1] + prob[index1];
+	}
+
+	for (int index = 0; index < noOfCromosomes; index++) {
+		random = RandomValue(0, 1);
+		survivorsChrom[index] = 0;
+		for (int index1 = 0; index1 < noOfCromosomes; index1++)
+			if (qprob[index1] <= random && random <= qprob[index1 + 1]) {
+				survivorsChrom[index] = index1;
+			}
+	}
+	CopyFromMatrix(survivorsChrom);
 }
 
 void RankSelection(){
@@ -161,33 +235,40 @@ void InterChange(int a[], int b[], int startPoint, int lengthOfSeq) {
 
 void Cross(){
 
-	int selectCrom = noOfCromosomes - noOfSelectedCrom - 1;
 	int lengthOfSeq = noOfVertices / 2;
 	int startPoint = rand() % (noOfVertices - lengthOfSeq) + 1;
 	int newB[DMAX], newA[DMAX];
-	if (selectCrom % 2 == 1) selectCrom++;
 
-	for (int index = selectCrom; index < noOfCromosomes; index += 2) {
+	double random;
+	int crossSurv[noOfCromosomes];
+	int k = 0;
+	for (int index = 0; index < noOfCromosomes; index++) {
+		random = RandomValue(0, 1);
+		if (random < PROB_CROSS) {
+			crossSurv[k++] = index;
+		}
+	}
+
+	if (k % 2 == 1) {
+		k--;
+	}
+
+	for (int index = 0; index < k-1; index += 2) {
 		
-		InterChange(Pop.M[index], Pop.M[index + 1], startPoint, lengthOfSeq);
+		InterChange(Pop.newM[crossSurv[index]], Pop.newM[crossSurv[index + 1]], startPoint, lengthOfSeq);
 		for (int index1 = 0; index1 < noOfVertices + 1; index1++) {
 			newB[index1] = vector[index1];
 		}
-		InterChange(Pop.M[index + 1], Pop.M[index], startPoint, lengthOfSeq);
+		InterChange(Pop.newM[crossSurv[index + 1]], Pop.newM[crossSurv[index]], startPoint, lengthOfSeq);
 		for (int index1 = 0; index1 < noOfVertices + 1; index1++) {
 			newA[index1] = vector[index1];
 		}
 		
-
 		for (int index1 = 0; index1 < noOfVertices + 1; index1++) {
-			Pop.M[index][index1] = newA[index1];
-			Pop.M[index + 1][index1] = newB[index1];
+			Pop.newM[crossSurv[index]][index1] = newA[index1];
+			Pop.newM[crossSurv[index + 1]][index1] = newB[index1];
 		}
 	}
-}
-
-double RandomValue(double lowValue, double highValue) {
-	return lowValue + static_cast <double> (rand()) / (static_cast <double> (RAND_MAX / (highValue - lowValue)));
 }
 
 void Mutation() {
@@ -204,34 +285,48 @@ void Mutation() {
 				random2 = rand() % (noOfVertices - 1) + 1;
 			} while (random1 == random2);
 
-			aux = Pop.M[cromosome][random1];
-			Pop.M[cromosome][random1] = Pop.M[cromosome][random2];
-			Pop.M[cromosome][random2] = aux;
+			aux = Pop.newM[cromosome][random1];
+			Pop.newM[cromosome][random1] = Pop.newM[cromosome][random2];
+			Pop.newM[cromosome][random2] = aux;
 		}
-		
 	}
+}
 
+double EvaluateOffSprings() {
+
+	double best = MAX_VAL, result;
+
+	for (int index = 0; index < noOfCromosomes; index++) {
+
+		result = FitnessFunction(RoadCost(Pop.newM[index]));
+		if (result > best) {
+			best = result;
+		}
+	}
+	return best;
 }
 
 void GeneticAlgorithm() {
 
 	int counter = 0;
+	double result;
 	InitialPopulation();
 	while (counter < STOP) {
-		RankSelection();
-		Mutation();
+		//RankSelection();
+		RouletteSelection();
 		Cross();
-		localMin = Pop.CromCost[0];
-		if (localMin < globalMin) {
+		Mutation();
+		result = EvaluateOffSprings();
+		if (result > bestChromosome) {
 			counter = 0;
-			globalMin = localMin;
-			cout << localMin << '\n';
+			bestChromosome = result;
 		}
+		CopyToMatrix();
 		counter++;
 	}
-	cout << "Best Cost: " << globalMin << '\n';
+	cout << "Best Cost: " << bestResult << '\n';
 	for (int index = 0; index < noOfVertices + 1; index++) {
-		cout << Pop.M[0][index] << " ";
+		cout << Pop.M[posOfBest][index] << " ";
 	}
 	cout << '\n';
 }
@@ -241,23 +336,29 @@ int main(){
 	double allMin = MIN_VAL;
 	srand((unsigned int)time(NULL));
 	ReadData();
-	/*for (firstVertex = 1; firstVertex <= 38; firstVertex++) {
-		globalMin = MIN_VAL;
+
+	//int x = noOfVertices;
+	int x = 1;
+	
+	for (firstVertex = 1; firstVertex <= x; firstVertex++) {
+		bestResult = MIN_VAL;
+		bestChromosome = MAX_VAL;
 		
 		cout << "Start Vertex: " << firstVertex << '\n';
 		GeneticAlgorithm();
-		if (globalMin < allMin) allMin = globalMin;
+		if (bestResult < allMin) {
+			allMin = bestResult;
+			for (int index = 0; index < noOfVertices + 1; index++) {
+				optimTour[index] = Pop.M[posOfBest][index];
+			}
+		}
+
 	}
-
-	cout << "Best MIn Cost: " << allMin<<'\n';*/
-	firstVertex = 1;
-	//GeneticAlgorithm();
-
-	int x[] = { 1, 6, 35, 4, 13, 3, 30, 2, 5, 21, 25, 10, 28, 38, 8, 18, 19, 16, 12, 26, 27, 17, 7, 34, 14, 23, 37, 22, 15, 11, 33, 36, 32, 24, 9, 20, 31, 29, 1 };
-	cout << RoadCost(x) << '\n';
-	cout<<Cost[17][1]<<'\n';
+	cout << "Best Min Cost: " << allMin << '\n';
+	for (int index = 0; index < noOfVertices + 1; index++) {
+		cout << optimTour[index] << " ";
+	}
+	cout << '\n';
     return 0;
 }
-
-
 
