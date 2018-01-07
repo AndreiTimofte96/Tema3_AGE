@@ -5,13 +5,13 @@
 #include <iostream>
 #include <fstream>
 #include <math.h>
-#define DMAX 10001
-#define noOfCities 194
+#define DMAX 10009
+#define noOfCities 71009
 
 using namespace std;
 
-ifstream fin("qatar.in");
-ofstream fout("qatar.txt");
+ifstream fin("china.in");
+ofstream fout("china.txt");
 
 struct {
 	double x[DMAX];

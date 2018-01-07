@@ -14,7 +14,7 @@
 
 using namespace std;
 
-ifstream fin("sahara.txt");
+ifstream fin("djibouti.txt");
 
 int firstVertex;
 
@@ -213,6 +213,7 @@ void InterChange(int a[], int b[], int startPoint, int lengthOfSeq) {
 			final++;
 		}
 	}
+
 	k = 0;
 	for (int vertex = startPoint; vertex < startPoint + lengthOfSeq; vertex++) {
 		vector[vertex] = aux[k++];
@@ -235,8 +236,9 @@ void InterChange(int a[], int b[], int startPoint, int lengthOfSeq) {
 
 void Cross(){
 
-	int lengthOfSeq = noOfVertices / 2;
-	int startPoint = rand() % (noOfVertices - lengthOfSeq) + 1;
+	int lengthOfSeq, startPoint;
+	//int lengthOfSeq = rand() % (noOfVertices - 1) + 1;
+	//int startPoint = rand() % (noOfVertices - lengthOfSeq) + 1;
 	int newB[DMAX], newA[DMAX];
 
 	double random;
@@ -254,7 +256,10 @@ void Cross(){
 	}
 
 	for (int index = 0; index < k-1; index += 2) {
-		
+
+		lengthOfSeq = rand() % (noOfVertices - 1) + 1;
+		startPoint = rand() % (noOfVertices - lengthOfSeq) + 1;
+
 		InterChange(Pop.newM[crossSurv[index]], Pop.newM[crossSurv[index + 1]], startPoint, lengthOfSeq);
 		for (int index1 = 0; index1 < noOfVertices + 1; index1++) {
 			newB[index1] = vector[index1];
@@ -337,8 +342,8 @@ int main(){
 	srand((unsigned int)time(NULL));
 	ReadData();
 
-	//int x = noOfVertices;
-	int x = 1;
+	int x = noOfVertices;
+	//int x = 1;
 	
 	for (firstVertex = 1; firstVertex <= x; firstVertex++) {
 		bestResult = MIN_VAL;
