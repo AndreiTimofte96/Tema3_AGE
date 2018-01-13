@@ -10,11 +10,12 @@
 #define MIN_VAL 9999999.0
 #define MAX_VAL 0.0
 #define PROB_MUT 0.01
-#define PROB_CROSS 0.2
+#define PROB_CROSS 0.15
+#define OP_TYPE 1
 
 using namespace std;
 
-ifstream fin("djibouti.txt");
+ifstream fin("berlin.txt");
 
 int firstVertex;
 
@@ -234,6 +235,49 @@ void InterChange(int a[], int b[], int startPoint, int lengthOfSeq) {
 	}
 }
 
+
+void InterChange_PMX(int a[], int b[], int pos1, int pos2) {
+
+
+
+	for (int index = pos1; index < pos2; index++) {
+		
+	}
+}
+void Cross_PMX() {
+	
+
+	int crossSurv[noOfCromosomes];
+	int k = 0;
+	double random;
+	for (int index = 0; index < noOfCromosomes; index++) {
+		random = RandomValue(0, 1);
+		if (random < PROB_CROSS) {
+			crossSurv[k++] = index;
+		}
+	}
+
+	if (k % 2 == 1) {
+		k--;
+	}
+
+	for (int index = 0; index < k - 1; index += 2) {
+
+
+		int pos1, pos2;
+		int newA[DMAX], newB[DMAX];
+		do {
+			pos1 = rand() % (noOfVertices - 1) + 1;
+			pos2 = rand() % (noOfVertices - 1) + 1;
+		} while (pos1 + 1 >= pos2);
+	}
+	
+	
+
+	
+
+}
+
 void Cross(){
 
 	int lengthOfSeq, startPoint;
@@ -272,6 +316,42 @@ void Cross(){
 		for (int index1 = 0; index1 < noOfVertices + 1; index1++) {
 			Pop.newM[crossSurv[index]][index1] = newA[index1];
 			Pop.newM[crossSurv[index + 1]][index1] = newB[index1];
+		}
+	}
+}
+
+
+void Mutation_Greedy() {
+
+	int random1, random2, aux;
+	double prob, result1, result2;
+	for (int cromosome = 0; cromosome < noOfCromosomes; cromosome++) {
+
+		
+		prob = RandomValue(0, 1);
+		if (prob < PROB_MUT) {
+
+			result1 = RoadCost(Pop.newM[cromosome]);
+			do {
+				random1 = rand() % (noOfVertices - 1) + 1;
+				random2 = rand() % (noOfVertices - 1) + 1;
+			} while (random1 == random2);
+			
+			aux = Pop.newM[cromosome][random1];
+			Pop.newM[cromosome][random1] = Pop.newM[cromosome][random2];
+			Pop.newM[cromosome][random2] = aux;
+
+			result2 = RoadCost(Pop.newM[cromosome]);
+
+			if (result2 >= result1) {
+				aux = Pop.newM[cromosome][random1];
+				Pop.newM[cromosome][random1] = Pop.newM[cromosome][random2];
+				Pop.newM[cromosome][random2] = aux;
+			}
+			else {
+				//totul bine;
+			}
+
 		}
 	}
 }
@@ -319,8 +399,14 @@ void GeneticAlgorithm() {
 	while (counter < STOP) {
 		//RankSelection();
 		RouletteSelection();
-		Cross();
-		Mutation();
+		if (OP_TYPE == 1) {
+			Cross();
+			Mutation();
+		}
+		if (OP_TYPE == 2) {
+			Cross_PMX();
+			Mutation_Greedy();
+		}
 		result = EvaluateOffSprings();
 		if (result > bestChromosome) {
 			counter = 0;
@@ -342,8 +428,8 @@ int main(){
 	srand((unsigned int)time(NULL));
 	ReadData();
 
-	int x = noOfVertices;
-	//int x = 1;
+	//int x = noOfVertices;
+	int x = 1;
 	
 	for (firstVertex = 1; firstVertex <= x; firstVertex++) {
 		bestResult = MIN_VAL;

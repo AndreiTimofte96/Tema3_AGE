@@ -1,2 +1,5 @@
 ﻿  ati AGE_Tema3_TSPLength.cpp
-d:\probleme_c++\ati age_tema3\ati age_tema3_tsplength\ati age_tema3_tsplength\ati age_tema3_tsplength.cpp(21): error C2148: total size of array must not exceed 0x7fffffff bytes
+d:\probleme_c++\ati age_tema3\ati age_tema3_tsplength\ati age_tema3_tsplength\ati age_tema3_tsplength.cpp(35): warning C4101: 'y': unreferenced local variable
+d:\probleme_c++\ati age_tema3\ati age_tema3_tsplength\ati age_tema3_tsplength\ati age_tema3_tsplength.cpp(35): warning C4101: 'x': unreferenced local variable
+  ati AGE_Tema3_TSPLength.vcxproj -> D:\Probleme_C++\ati AGE_Tema3\ati AGE_Tema3_TSPLength\Debug\ati AGE_Tema3_TSPLength.exe
+  ati AGE_Tema3_TSPLength.vcxproj -> D:\Probleme_C++\ati AGE_Tema3\ati AGE_Tema3_TSPLength\Debug\ati AGE_Tema3_TSPLength.pdb (Full PDB)
