@@ -4,18 +4,19 @@
 #include <iostream>
 #include <fstream>
 #include <ctime>
-#define DMAX 1001
+#define DMAX 10001
 #define STOP 100
-#define noOfCromosomes 1000
+#define noOfCromosomes 2000
 #define MIN_VAL 9999999.0
 #define MAX_VAL 0.0
-#define PROB_MUT 0.01
-#define PROB_CROSS 0.15
-#define OP_TYPE 1
+#define PROB_MUT 0.25
+#define PROB_CROSS 0.05
+#define OP_TYPE 2
 
 using namespace std;
 
 ifstream fin("berlin.txt");
+//ifstream fin("data.in");
 
 int firstVertex;
 
@@ -236,18 +237,41 @@ void InterChange(int a[], int b[], int startPoint, int lengthOfSeq) {
 }
 
 
-void InterChange_PMX(int a[], int b[], int pos1, int pos2) {
+void InterChange_PMX(int a[], int b[], int randomPos) {
 
 
+	int newA[DMAX], newB[DMAX];
+	for (int index = 0; index < noOfVertices + 1; index++) {
+		newA[index] = a[index];
+		newB[index] = b[index];
+	}
 
-	for (int index = pos1; index < pos2; index++) {
-		
+	int index1, index2;
+	for (int index = 1; index < randomPos; index++) {
+		index1 = index2 = 1;
+		while (newA[index2] != b[index] && index2 < noOfVertices)
+			index2++;
+		newA[index2] = newA[index];
+		newA[index] = b[index];
+
+
+		while (newB[index1] != a[index] && index1 < noOfVertices)
+			index1++;
+		newB[index1] = newB[index];
+		newB[index] = a[index];
+	}
+
+
+	for (int index = 0; index < noOfVertices + 1; index++) {
+		a[index] = newA[index];
+		b[index] = newB[index];
 	}
 }
+
 void Cross_PMX() {
 	
-
 	int crossSurv[noOfCromosomes];
+	int pos;
 	int k = 0;
 	double random;
 	for (int index = 0; index < noOfCromosomes; index++) {
@@ -262,20 +286,11 @@ void Cross_PMX() {
 	}
 
 	for (int index = 0; index < k - 1; index += 2) {
-
-
-		int pos1, pos2;
-		int newA[DMAX], newB[DMAX];
 		do {
-			pos1 = rand() % (noOfVertices - 1) + 1;
-			pos2 = rand() % (noOfVertices - 1) + 1;
-		} while (pos1 + 1 >= pos2);
+			pos = rand() % (noOfVertices - 1) + 1;
+		} while (pos < 2);
+		InterChange_PMX(Pop.newM[crossSurv[index]], Pop.newM[crossSurv[index + 1]], pos);
 	}
-	
-	
-
-	
-
 }
 
 void Cross(){
@@ -319,7 +334,6 @@ void Cross(){
 		}
 	}
 }
-
 
 void Mutation_Greedy() {
 
@@ -428,8 +442,8 @@ int main(){
 	srand((unsigned int)time(NULL));
 	ReadData();
 
-	//int x = noOfVertices;
-	int x = 1;
+	int x = noOfVertices;
+	//int x = 1;
 	
 	for (firstVertex = 1; firstVertex <= x; firstVertex++) {
 		bestResult = MIN_VAL;
